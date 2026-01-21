@@ -4,4 +4,4 @@ phases:
   build:
     commands:
       - echo "Build started"
-      - echo "Hello from CodeBuild"
+      - echo "Terraform CI/CD working"
