@@ -1,7 +1,18 @@
 version: 0.2
 
 phases:
+  pre_build:
+    commands:
+      - echo "Logging in to Amazon ECR..."
+      - aws ecr get-login-password --region ap-south-1 | docker login --username AWS --password-stdin 012918245028.dkr.ecr.ap-south-1.amazonaws.com
   build:
     commands:
-      - echo "Build started"
-      - echo "Terraform CI/CD working"
+      - echo "Building Docker image..."
+      - docker build -t ecs-demo-app .
+      - docker tag ecs-demo-app:latest 012918245028.dkr.ecr.ap-south-1.amazonaws.com/ecs-demo-app:latest
+  post_build:
+    commands:
+      - echo "Pushing Docker image to ECR..."
+      - docker push 012918245028.dkr.ecr.ap-south-1.amazonaws.com/ecs-demo-app:latest
+      - echo "Deploying to ECS..."
+      - aws ecs update-service --cluster my-ecs-cluster --service nginx-service-dhanush --force-new-deployment --image 012918245028.dkr.ecr.ap-south-1.amazonaws.com/ecs-demo-app:latest
